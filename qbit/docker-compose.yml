@@ -28,3 +28,4 @@ services:
     volumes:
       - ./data:/config
       - /media/downloads:/downloads
+    restart: unless-stopped
