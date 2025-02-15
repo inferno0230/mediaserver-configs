@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  syncyomi:
+    container_name: syncyomi
+    image: ghcr.io/syncyomi/syncyomi:latest
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./data:/config
+    ports:
+      - 8282:8282
