@@ -7,8 +7,8 @@ for dir in "$DOCKER_DIR"/*; do
         echo "Updating $(basename "$dir")..."
         (
             cd "$dir" || exit
-            sudo docker-compose pull
-            sudo docker-compose up -d
+            sudo docker compose pull
+            sudo docker compose up -d
         )
     fi
 done
