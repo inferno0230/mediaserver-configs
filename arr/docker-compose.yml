@@ -1,20 +1,26 @@
 services:
   downloader:
-    image: rogerfar/rdtclient
     container_name: downloader
     environment:
-      - PUID=1000
       - PGID=1001
+      - PUID=1000
+      - QBT_LEGAL_NOTICE=${QBT_LEGAL_NOTICE}
+      - QBT_VERSION=${QBT_VERSION}
+      - QBT_WEBUI_PORT=${QBT_WEBUI_PORT}
       - TZ=Asia/Kolkata
-    volumes:
-      - ./data/rdtclient:/data/db
-      - /media/downloads:/data/downloads
-    logging:
-       driver: json-file
-       options:
-          max-size: 10m
+    image: qbittorrentofficial/qbittorrent-nox:${QBT_VERSION}
     ports:
-      - 6500:6500
+      - 6881:6881/tcp
+      - 6881:6881/udp
+      - 8080:8080/tcp
+    read_only: true
+    stop_grace_period: 30m
+    tmpfs:
+      - /tmp
+    tty: true
+    volumes:
+      - ./data/downloader:/config
+      - /media/downloads:/downloads
     restart: unless-stopped
     networks:
       - media_network
@@ -31,7 +37,7 @@ services:
     volumes:
       - ./data/radarr:/config
       - /media/movies:/movies
-      - /media/downloads/radarr:/media/downloads/radarr
+      - /media/downloads:/downloads
     ports:
       - 7878:7878
     restart: unless-stopped
@@ -50,7 +56,7 @@ services:
     volumes:
       - ./data/sonarr:/config
       - /media/anime:/series
-      - /media/downloads/sonarr:/media/downloads/sonarr
+      - /media/downloads:/downloads
     ports:
       - 8989:8989
     restart: unless-stopped
