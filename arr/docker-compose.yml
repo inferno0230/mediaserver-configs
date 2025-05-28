@@ -92,6 +92,22 @@ services:
     networks:
       - media_network
 
+  jellyseerr:
+    depends_on:
+      - sonarr
+      - radarr
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - TZ=Asia/Kolkata
+    ports:
+      - 5055:5055
+    volumes:
+      - ./data/jellyseerr:/app/config
+    restart: unless-stopped
+    networks:
+      - media_network
+
 networks:
   media_network:
     external: true
