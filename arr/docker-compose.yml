@@ -38,10 +38,6 @@ services:
       - QBT_WEBUI_PORT=${QBT_WEBUI_PORT}
       - TZ=Asia/Kolkata
     image: qbittorrentofficial/qbittorrent-nox:${QBT_VERSION}
-    ports:
-      - 6881:6881/tcp
-      - 6881:6881/udp
-      - 8080:8080/tcp
     read_only: true
     stop_grace_period: 30m
     tmpfs:
@@ -51,8 +47,7 @@ services:
       - ./data/downloader:/config
       - /media/downloads:/downloads
     restart: unless-stopped
-    networks:
-      - media_network
+    network_mode: "container:vpn"
 
   radarr:
     depends_on:
@@ -67,11 +62,8 @@ services:
       - ./data/radarr:/config
       - /media/movies:/movies
       - /media/downloads:/downloads
-    ports:
-      - 7878:7878
     restart: unless-stopped
-    networks:
-      - media_network
+    network_mode: "container:vpn"
 
   sonarr:
     depends_on:
@@ -86,24 +78,40 @@ services:
       - ./data/sonarr:/config
       - /media/anime:/series
       - /media/downloads:/downloads
-    ports:
-      - 8989:8989
     restart: unless-stopped
-    networks:
-      - media_network
+    network_mode: "container:vpn"
 
   jellyseerr:
     depends_on:
       - sonarr
       - radarr
+    network_mode: "container:vpn"
     image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
     environment:
       - TZ=Asia/Kolkata
-    ports:
-      - 5055:5055
     volumes:
       - ./data/jellyseerr:/app/config
+    restart: unless-stopped
+  
+  vpn:
+    image: qmcgaw/gluetun
+    container_name: vpn
+    cap_add:
+      - NET_ADMIN
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./data/gluetun:/gluetun
+    ports:
+      - 6881:6881/tcp # qbit
+      - 6881:6881/udp # qbit
+      - 8080:8080/tcp # qbit
+      - 7878:7878 # radarr
+      - 8989:8989 # sonarr
+      - 5055:5055 # jellyseerr
     restart: unless-stopped
     networks:
       - media_network
