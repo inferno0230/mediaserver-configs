@@ -33,11 +33,11 @@ services:
     environment:
       - PGID=1001
       - PUID=1000
-      - QBT_LEGAL_NOTICE=${QBT_LEGAL_NOTICE}
-      - QBT_VERSION=${QBT_VERSION}
-      - QBT_WEBUI_PORT=${QBT_WEBUI_PORT}
+      - QBT_LEGAL_NOTICE=confirm
+      - QBT_VERSION=5.1.0-1
+      - QBT_WEBUI_PORT=8080
       - TZ=Asia/Kolkata
-    image: qbittorrentofficial/qbittorrent-nox:${QBT_VERSION}
+    image: qbittorrentofficial/qbittorrent-nox:5.1.0-1
     ports:
       - 6881:6881/tcp
       - 6881:6881/udp
