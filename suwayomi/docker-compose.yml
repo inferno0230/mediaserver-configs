@@ -1,0 +1,13 @@
+services:
+  suwayomi:
+    user: suwayomi
+    container_name: suwayomi
+    image: ghcr.io/suwayomi/suwayomi-server:latest
+    env_file: .env
+    volumes:
+      - ./data/downloads:/home/suwayomi/.local/share/Tachidesk/downloads
+      - ./data/files:/home/suwayomi/.local/share/Tachidesk
+    ports:
+      - "8085:4567"
+    restart: unless-stopped
+
