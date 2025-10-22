@@ -67,6 +67,7 @@ services:
       - ./data/radarr:/config
       - /media/movies:/movies
       - /media/downloads:/downloads
+      - /media/backup/radarr:/config/Backups
     ports:
       - 7878:7878
     restart: unless-stopped
@@ -86,6 +87,7 @@ services:
       - ./data/sonarr:/config
       - /media/anime:/series
       - /media/downloads:/downloads
+      - /media/backup/sonarr:/config/Backups
     ports:
       - 8989:8989
     restart: unless-stopped

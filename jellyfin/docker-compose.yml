@@ -11,6 +11,7 @@ services:
       - ./data/cache:/cache
       - /media/anime:/anime
       - /media/movies:/movies
+      - /media/backup/jellyfin:/config/data/data/backups
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128
     restart: 'unless-stopped'
