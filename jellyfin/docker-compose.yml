@@ -19,7 +19,3 @@ services:
       - 8096:8096
     networks:
       - media_network
-
-networks:
-  media_network:
-    external: true

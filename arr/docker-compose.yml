@@ -1,6 +1,21 @@
 services:
+  vpn:
+    image: tailscale/tailscale:latest
+    container_name: vpn
+    hostname: vpn
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=${TS_EXTRA_ARGS}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=true
+    volumes:
+      - ./data/tailscale/state:/var/lib/tailscale
+    restart: unless-stopped
+
   downloader:
     container_name: downloader
+    depends_on:
+      - vpn
     environment:
       - PGID=0
       - PUID=0
@@ -9,10 +24,10 @@ services:
       - QBT_WEBUI_PORT=8080
       - TZ=Asia/Kolkata
     image: qbittorrentofficial/qbittorrent-nox:5.1.0-1
-    ports:
-      - 6881:6881/tcp
-      - 6881:6881/udp
-      - 8080:8080/tcp
+    #ports:
+    #  - 6881:6881/tcp
+    #  - 6881:6881/udp
+    #  - 8080:8080/tcp
     read_only: true
     stop_grace_period: 30m
     tmpfs:
@@ -22,12 +37,12 @@ services:
       - ./data/downloader:/config
       - /media/downloads:/downloads
     restart: unless-stopped
-    networks:
-      - media_network
+    network_mode: service:vpn
 
   radarr:
     depends_on:
       - downloader
+      - vpn
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     environment:
@@ -39,15 +54,15 @@ services:
       - /media/movies:/movies
       - /media/downloads:/downloads
       - /media/backup/radarr:/config/Backups
-    ports:
-      - 7878:7878
+    #ports:
+    #  - 7878:7878
     restart: unless-stopped
-    networks:
-      - media_network
+    network_mode: service:vpn
 
   sonarr:
     depends_on:
       - downloader
+      - vpn
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     environment:
@@ -59,12 +74,7 @@ services:
       - /media/anime:/series
       - /media/downloads:/downloads
       - /media/backup/sonarr:/config/Backups
-    ports:
-      - 8989:8989
+    #ports:
+    #  - 8989:8989
     restart: unless-stopped
-    networks:
-      - media_network
-
-networks:
-  media_network:
-    external: true
+    network_mode: service:vpn
