@@ -10,7 +10,7 @@ services:
       - TS_USERSPACE=true
     volumes:
       - ./data/tailscale/state:/var/lib/tailscale
-    restart: unless-stopped
+    restart: on-failure
 
   downloader:
     container_name: downloader
@@ -36,7 +36,7 @@ services:
     volumes:
       - ./data/downloader:/config
       - /media/downloads:/downloads
-    restart: unless-stopped
+    restart: on-failure
     network_mode: service:vpn
 
   radarr:
@@ -56,7 +56,7 @@ services:
       - /media/backup/radarr:/config/Backups
     #ports:
     #  - 7878:7878
-    restart: unless-stopped
+    restart: on-failure
     network_mode: service:vpn
 
   sonarr:
@@ -76,5 +76,5 @@ services:
       - /media/backup/sonarr:/config/Backups
     #ports:
     #  - 8989:8989
-    restart: unless-stopped
+    restart: on-failure
     network_mode: service:vpn
