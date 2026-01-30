@@ -17,8 +17,8 @@ services:
     depends_on:
       - vpn
     environment:
-      - PGID=0
-      - PUID=0
+      - PGID=1001
+      - PUID=1000
       - QBT_LEGAL_NOTICE=confirm
       - QBT_VERSION=5.1.0-1
       - QBT_WEBUI_PORT=8080
@@ -46,8 +46,8 @@ services:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=1000
+      - PGID=1001
       - TZ=Asia/Kolkata
     volumes:
       - ./data/radarr:/config
@@ -66,8 +66,8 @@ services:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=1000
+      - PGID=1001
       - TZ=Asia/Kolkata
     volumes:
       - ./data/sonarr:/config
