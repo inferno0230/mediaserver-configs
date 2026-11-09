@@ -12,8 +12,8 @@ services:
     volumes:
       - ./data/config:/config
       - ./data/cache:/cache
-      - /media/anime:/anime
-      - /media/movies:/movies
+      - /media/data/anime:/anime
+      - /media/data/movies:/movies
     devices:
       - /dev/dri:/dev/dri
     restart: on-failure

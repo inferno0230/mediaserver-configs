@@ -54,7 +54,8 @@ services:
     tty: true
     volumes:
       - ./data/downloader:/config
-      - /media/downloads:/downloads
+      # qbit keeps /downloads; radarr/sonarr map it via a Remote Path Mapping
+      - /media/data/downloads:/downloads
     restart: on-failure
     network_mode: service:vpn
 
@@ -72,8 +73,8 @@ services:
       - TZ=Asia/Kolkata
     volumes:
       - ./data/radarr:/config
-      - /media/movies:/movies
-      - /media/downloads:/downloads
+      # Single mount so imports can hardlink from downloads into the library
+      - /media/data:/data
       - /media/backup/radarr:/config/Backups
     #ports:
     #  - 7878:7878
@@ -94,8 +95,8 @@ services:
       - TZ=Asia/Kolkata
     volumes:
       - ./data/sonarr:/config
-      - /media/anime:/series
-      - /media/downloads:/downloads
+      # Single mount so imports can hardlink from downloads into the library
+      - /media/data:/data
       - /media/backup/sonarr:/config/Backups
     #ports:
     #  - 8989:8989
