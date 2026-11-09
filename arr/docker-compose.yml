@@ -7,15 +7,34 @@ services:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_EXTRA_ARGS=${TS_EXTRA_ARGS}
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_USERSPACE=true
+      # Kernel mode: creates a real tun interface so traffic from every container
+      # sharing this network namespace is actually routed via the exit node.
+      # (Userspace mode only proxies inbound tailnet traffic; outbound leaked.)
+      - TS_USERSPACE=false
+      - TS_ENABLE_HEALTH_CHECK=true
+      - TS_LOCAL_ADDR_PORT=127.0.0.1:9002
+      # Host uses nftables; the image's legacy iptables can't see the filter table
+      - TS_DEBUG_FIREWALL_MODE=nftables
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     volumes:
       - ./data/tailscale/state:/var/lib/tailscale
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:9002/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     restart: on-failure
 
   downloader:
     container_name: downloader
     depends_on:
-      - vpn
+      vpn:
+        condition: service_healthy
     environment:
       - PGID=1001
       - PUID=1000
@@ -41,8 +60,10 @@ services:
 
   radarr:
     depends_on:
-      - downloader
-      - vpn
+      vpn:
+        condition: service_healthy
+      downloader:
+        condition: service_started
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     environment:
@@ -61,8 +82,10 @@ services:
 
   sonarr:
     depends_on:
-      - downloader
-      - vpn
+      vpn:
+        condition: service_healthy
+      downloader:
+        condition: service_started
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     environment:
