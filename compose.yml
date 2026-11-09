@@ -1,0 +1,8 @@
+name: mediaserver
+
+# Single entry point: `docker compose up -d` / `pull` / `down` from here manages
+# every stack. Each included file keeps its own directory for relative paths
+# and its own .env.
+include:
+  - arr/docker-compose.yml
+  - jellyfin/docker-compose.yml

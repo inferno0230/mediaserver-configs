@@ -22,7 +22,7 @@ healthcheck() {
 
 backup() {
     echo "Stopping all containers before backup..."
-    find . -name docker-compose.yml -execdir docker compose down \;
+    docker compose down
 
     BACKUP_NAME="backup_$(date +'%Y%m%d%H%M%S').tar.gz"
     BACKUP_PATH="$BACKUP_DIR/$BACKUP_NAME"
@@ -35,19 +35,19 @@ backup() {
     find "$BACKUP_DIR" -type f -name "backup_*.tar.gz" | sort -r | sed -e "1,${MAX_BACKUPS}d" | xargs rm -f
 
     echo "Old backups cleaned."
-    find . -name docker-compose.yml -execdir docker compose up -d \;
+    docker compose up -d
 }
 
 case "$ACTION" in
   start)
     healthcheck
-    find . -name docker-compose.yml -execdir docker compose up -d \;
+    docker compose up -d
     ;;
   stop)
-    find . -name docker-compose.yml -execdir docker compose down --remove-orphans \;
+    docker compose down --remove-orphans
     ;;
   update)
-    find . -name docker-compose.yml -execdir bash -c 'docker compose down && docker compose pull && docker compose up -d' \;
+    docker compose down && docker compose pull && docker compose up -d
     ;;
   backup)
     backup

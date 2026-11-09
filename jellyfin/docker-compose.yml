@@ -2,20 +2,19 @@ services:
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
-    environment:
-      - PUID=1000
-      - PGID=1001
-      - TZ=Asia/Kolkata
+    env_file: ../common.env
     group_add:
-      - 983
-      - 987
+      - 983 # host "video" group  – /dev/dri access for HW transcoding
+      - 987 # host "render" group
+    devices:
+      - /dev/dri:/dev/dri
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - ./data/config:/config
       - ./data/cache:/cache
       - /media/data/anime:/anime
       - /media/data/movies:/movies
-    devices:
-      - /dev/dri:/dev/dri
-    restart: on-failure
     ports:
       - 8096:8096
+    restart: on-failure

@@ -3,6 +3,7 @@ services:
     image: tailscale/tailscale:latest
     container_name: vpn
     hostname: vpn
+    env_file: ../common.env
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_EXTRA_ARGS=${TS_EXTRA_ARGS}
@@ -20,6 +21,8 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - ./data/tailscale/state:/var/lib/tailscale
     healthcheck:
@@ -31,74 +34,64 @@ services:
     restart: on-failure
 
   downloader:
+    image: qbittorrentofficial/qbittorrent-nox:latest
     container_name: downloader
     depends_on:
       vpn:
         condition: service_healthy
+    env_file: ../common.env
     environment:
-      - PGID=1001
-      - PUID=1000
       - QBT_LEGAL_NOTICE=confirm
-      - QBT_VERSION=5.1.0-1
       - QBT_WEBUI_PORT=8080
-      - TZ=Asia/Kolkata
-    image: qbittorrentofficial/qbittorrent-nox:latest
-    #ports:
-    #  - 6881:6881/tcp
-    #  - 6881:6881/udp
-    #  - 8080:8080/tcp
     read_only: true
     stop_grace_period: 30m
     tmpfs:
       - /tmp
     tty: true
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - ./data/downloader:/config
       # qbit keeps /downloads; radarr/sonarr map it via a Remote Path Mapping
       - /media/data/downloads:/downloads
-    restart: on-failure
+    # No ports: reachable only over the tailnet through the vpn container
     network_mode: service:vpn
+    restart: on-failure
 
   radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
     depends_on:
       vpn:
         condition: service_healthy
       downloader:
         condition: service_started
-    image: lscr.io/linuxserver/radarr:latest
-    container_name: radarr
-    environment:
-      - PUID=1000
-      - PGID=1001
-      - TZ=Asia/Kolkata
+    env_file: ../common.env
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - ./data/radarr:/config
       # Single mount so imports can hardlink from downloads into the library
       - /media/data:/data
       - /media/backup/radarr:/config/Backups
-    #ports:
-    #  - 7878:7878
-    restart: on-failure
     network_mode: service:vpn
+    restart: on-failure
 
   sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
     depends_on:
       vpn:
         condition: service_healthy
       downloader:
         condition: service_started
-    image: lscr.io/linuxserver/sonarr:latest
-    container_name: sonarr
-    environment:
-      - PUID=1000
-      - PGID=1001
-      - TZ=Asia/Kolkata
+    env_file: ../common.env
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - ./data/sonarr:/config
       # Single mount so imports can hardlink from downloads into the library
       - /media/data:/data
       - /media/backup/sonarr:/config/Backups
-    #ports:
-    #  - 8989:8989
-    restart: on-failure
     network_mode: service:vpn
+    restart: on-failure
